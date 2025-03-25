@@ -10,41 +10,62 @@ self-contained: true
 
 ```{r}
 library(tidyverse)
-d <- read_csv("https://raw.githubusercontent.com/difiore/ada-datasets/main/KamilarAndCooperData.csv")
+kc_data <- read_csv("https://raw.githubusercontent.com/difiore/ada-datasets/main/KamilarAndCooperData.csv")
 set.seed(42)
 ```
 
 ## Step 2
 
 ```{r}
-ggplot(d, aes(x = MaxLongevity_m, y= Body_mass_female_mean)) +
-  geom_point()
+p1 <- ggplot(kc_data, aes(x= Body_mass_female_mean, y = MaxLongevity_m)) +
+  geom_point(color = "#bf5700")
 
-ggplot(d, aes(x = MaxLongevity_m, y= log(Body_mass_female_mean))) +
-  geom_point()
+p2 <- ggplot(kc_data, aes(x= log(Body_mass_female_mean), y = MaxLongevity_m)) +
+  geom_point(color = "#bf5700")
+
+p3 <- ggplot(kc_data, aes(x= log(Body_mass_female_mean), y = log(MaxLongevity_m))) +
+  geom_point(color = "#bf5700")
+
+library(patchwork)
+(p1 | p2 | p3)  + plot_annotation(tag_levels = "I")
 ```
 
-## Step 3
+## Step 3: Linear models
+
+```{r}
+m1 <- lm(MaxLongevity_m ~ Body_mass_female_mean, data = kc_data)
+m2 <- lm(MaxLongevity_m ~ log(Body_mass_female_mean), data = kc_data)
+m3 <- lm(log(MaxLongevity_m) ~ log(Body_mass_female_mean), data = kc_data)
+```
+
+## Step 4: Residuals
+
+```{r}
+m1_residuals <- m1$residuals
+m2_residuals <- m2$residuals
+m3_residuals <- m3$residuals
+```
+
+## Step 5: QQ Plot
 
 ```{r}
 ```
 
-## Step 4
+## Step 6: Linear Model Plots
 
 ```{r}
+plot(m1)
 ```
 
-## Step 5
+## Step 7: Shapiro Test
 
 ```{r}
-```
+# Linear Model 1
+shapiro.test(m1_residuals)
 
-## Step 6
+# Linear Model 2
+shapiro.test(m2_residuals)
 
-```{r}
-```
-
-## Step 7
-
-```{r}
+# Linear Model 3
+shapiro.test(m3_residuals)
 ```
