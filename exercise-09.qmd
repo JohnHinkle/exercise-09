@@ -1,0 +1,50 @@
+---
+title: "exercise-09"
+author: "John Hinkle"
+format: html
+editor: visual
+self-contained: true
+---
+
+## Step 1
+
+```{r}
+library(tidyverse)
+d <- read_csv("https://raw.githubusercontent.com/difiore/ada-datasets/main/KamilarAndCooperData.csv")
+set.seed(42)
+```
+
+## Step 2
+
+```{r}
+ggplot(d, aes(x = MaxLongevity_m, y= Body_mass_female_mean)) +
+  geom_point()
+
+ggplot(d, aes(x = MaxLongevity_m, y= log(Body_mass_female_mean))) +
+  geom_point()
+```
+
+## Step 3
+
+```{r}
+```
+
+## Step 4
+
+```{r}
+```
+
+## Step 5
+
+```{r}
+```
+
+## Step 6
+
+```{r}
+```
+
+## Step 7
+
+```{r}
+```
