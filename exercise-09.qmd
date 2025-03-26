@@ -6,47 +6,50 @@ editor: visual
 self-contained: true
 ---
 
-## Step 1
+## Step 1: Load data
 
 ```{r}
 library(tidyverse)
-kc_data <- read_csv("https://raw.githubusercontent.com/difiore/ada-datasets/main/KamilarAndCooperData.csv")
-set.seed(42)
+d <- read_csv("https://raw.githubusercontent.com/difiore/ada-datasets/main/KamilarAndCooperData.csv")
 ```
 
-## Step 2
+## Step 2: Plot lifespan vs female body mass
 
 ```{r}
-p1 <- ggplot(kc_data, aes(x= Body_mass_female_mean, y = MaxLongevity_m)) +
+p1 <- ggplot(d, aes(x= Body_mass_female_mean, y = MaxLongevity_m)) +
   geom_point(color = "#bf5700")
 
-p2 <- ggplot(kc_data, aes(x= log(Body_mass_female_mean), y = MaxLongevity_m)) +
+p2 <- ggplot(d, aes(x= log(Body_mass_female_mean), y = MaxLongevity_m)) +
   geom_point(color = "#bf5700")
 
-p3 <- ggplot(kc_data, aes(x= log(Body_mass_female_mean), y = log(MaxLongevity_m))) +
+p3 <- ggplot(d, aes(x= log(Body_mass_female_mean), y = log(MaxLongevity_m))) +
   geom_point(color = "#bf5700")
 
 library(patchwork)
 (p1 | p2 | p3)  + plot_annotation(tag_levels = "I")
 ```
 
-## Step 3: Linear models
+## Step 3: Run linear models
 
 ```{r}
-m1 <- lm(MaxLongevity_m ~ Body_mass_female_mean, data = kc_data)
-m2 <- lm(MaxLongevity_m ~ log(Body_mass_female_mean), data = kc_data)
-m3 <- lm(log(MaxLongevity_m) ~ log(Body_mass_female_mean), data = kc_data)
+m1 <- lm(MaxLongevity_m ~ Body_mass_female_mean, data = d)
+m2 <- lm(MaxLongevity_m ~ log(Body_mass_female_mean), data = d)
+m3 <- lm(log(MaxLongevity_m) ~ log(Body_mass_female_mean), data = d)
 ```
 
-## Step 4: Residuals
+## Step 4: Generate and manually plot residuals
 
 ```{r}
 m1_residuals <- m1$residuals
 m2_residuals <- m2$residuals
 m3_residuals <- m3$residuals
+
+hist(m1_residuals)
+hist(m2_residuals)
+hist(m3_residuals)
 ```
 
-## Step 5: QQ Plot
+## Step 5: QQ Plots
 
 ```{r}
 ```
