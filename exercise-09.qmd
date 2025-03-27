@@ -12,75 +12,116 @@ self-contained: true
 library(tidyverse)
 library(cowplot) # for making multi-panel figures
 library(mosaic)
+
 d <- read_csv("https://raw.githubusercontent.com/difiore/ada-datasets/main/KamilarAndCooperData.csv")
 ```
 
 ## Step 2: Plot lifespan vs female body mass
 
+In plot 1 where both variables are untransformed, the relationship is **not** linear.
+
+Log transforming the x variable (Female body mass) results in a linear relationship, and log transforming both variables appears to further strengthen the linear relationship.
+
 ```{r}
+# Female body mass vs lifespan
 p1 <- ggplot(d, aes(x= Body_mass_female_mean, y = MaxLongevity_m)) +
-  geom_point(color = "#bf5700")
+  geom_point(color = "#bf5700") +
+  labs(x = "Female body mass", y = "lifespan")
 
+# log(Female body mass) vs lifespan
 p2 <- ggplot(d, aes(x= log(Body_mass_female_mean), y = MaxLongevity_m)) +
-  geom_point(color = "#bf5700")
+  geom_point(color = "#bf5700") +
+  labs(x = "log(Female body mass)", y = "lifespan")
 
+# log(Female body mass) vs log(lifespan)
 p3 <- ggplot(d, aes(x= log(Body_mass_female_mean), y = log(MaxLongevity_m))) +
-  geom_point(color = "#bf5700")
+  geom_point(color = "#bf5700") +
+  labs(x = "Female body mass", y = "log(lifespan)")
 
+# Plot Grid
 plot_grid(p1, p2, p3, nrow = 1)
 ```
 
 ## Step 3: Run linear models
 
 ```{r}
+# Model 1, lifespan vs Female body mass
 m1 <- lm(MaxLongevity_m ~ Body_mass_female_mean, data = d)
+
+# Model 2, lifespan vs log(Female body mass)
 m2 <- lm(MaxLongevity_m ~ log(Body_mass_female_mean), data = d)
+
+# Model 3, log(lifespan) vs log(Female body mass)
 m3 <- lm(log(MaxLongevity_m) ~ log(Body_mass_female_mean), data = d)
 ```
 
 ## Step 4: Generate and manually plot residuals
 
-```{r}
+The model 1 residuals are **not** normally distributed.
 
+The model 2 residuals somewhat follow a normal distribution.
+
+The model 3 residuals are the closest to following a normal distribution.
+
+```{r}
+# Extract residuals from each model
 m1_residuals <- m1$residuals
 m2_residuals <- m2$residuals
 m3_residuals <- m3$residuals
 
+# Model 1 Plot
 m1_plot <- ggplot(data = NULL, aes(x= m1$model$Body_mass_female_mean, y = m1_residuals)) +
   geom_point(color = "#bf5700") +
-  xlab("Female body mass")
+  labs(x = "Female body mass")
 
+# Model 2 Plot
 m2_plot <- ggplot(data = NULL, aes(x= m2$model$`log(Body_mass_female_mean)`, y = m2_residuals)) +
   geom_point(color = "#bf5700") +
-  xlab("log(Female body mass)")
+  labs(x = "log(Female body mass)")
 
+# Model 3 Plot
 m3_plot <- ggplot(data = NULL, aes(x= m3$model$`log(Body_mass_female_mean)`, y = m3_residuals)) +
   geom_point(color = "#bf5700") +
-  xlab("log(Female body mass)")
+  labs(x = "log(Female body mass)")
 
+# Model 1 Histogram
 m1_hist <- histogram(m1_residuals, nint=20)
+
+# Model 2 Histogram
 m2_hist <- histogram(m2_residuals, nint=20)
+
+# Model 3 Histogram
 m3_hist <- histogram(m3_residuals, nint=20)
 
+# Plot Grid
 plot_grid(m1_plot, m2_plot, m3_plot, m1_hist, m2_hist, m3_hist, nrow = 2)
 ```
 
-## Step 5: QQ Plots
+## Step 5: Q-Q Plots
+
+As observed in the previous step, the model 3 residuals appear to follow a normal distribution.
+
+The model 1 residuals clearly do **not** follow a normal distribution, and the model 2 residuals appear to **not** follow a normal distribution either.
 
 ```{r}
 par(mfrow=c(1, 3))
 
+# Model 1 Q-Q Plot
 qqnorm(m1_residuals, main="Q-Q plot for M1 Residuals")
 qqline(m1_residuals, col = "#bf5700")
 
+# Model 2 Q-Q Plot
 qqnorm(m2_residuals, main="Q-Q plot for M2 Residuals")
 qqline(m2_residuals, col = "#bf5700")
 
+# Model 3 Q-Q Plot
 qqnorm(m3_residuals, main="Q-Q plot for M3 Residuals")
 qqline(m3_residuals, col = "#bf5700")
 ```
 
 ## Step 6: Linear Model Plots
+
+These plots suggest that model 1 and model 2 both do not follow a normal distribution
 
 ```{r}
 # Model 1 Plots
@@ -102,13 +143,17 @@ plot(m3)
 
 ## Step 7: Shapiro Test
 
+The p-value for model 1 and model 2 is significant (p \< 0.05), leading us to [reject the null hypothesis]{.underline} that they follow a normal distribution.
+
+The p-value for model 3 is not significant (p \>\>\> 0.05), leading us to [**not** reject the null hypothesis]{.underline} that they follow a normal distribution.
+
 ```{r}
-# Linear Model 1
+# Model 1
 shapiro.test(m1_residuals)
 
-# Linear Model 2
+# Model 2
 shapiro.test(m2_residuals)
 
-# Linear Model 3
+# Model 3
 shapiro.test(m3_residuals)
 ```
